@@ -20,11 +20,20 @@ module.exports.getClientesDni = function(req, res){
 //POST de Clientes
 module.exports.postClientes = function(req, res){ 
   var db=req.db;
-  db.query('insert into Clientes set ?',[req.body], function(err, datos, fields) {
+  if(req.body.dni && req.body.nombre && req.body.apellidos){
+    db.query('insert into Clientes set ?',[req.body], function(err, datos, fields) {
   if (err) throw err;
-     res.status(201).json(datos)
+    res.status(201).json(datos)
   });
-};  
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
+};
+/**hemos puesto un if antes del db.query, para que si el dni, nombre y apellidos son validos
+ * ejecuta todo el codigo, sino, manda el mensaje de error de que los datos
+ * introducidos no son correctos. El codigo 409 indica formato incorrecto
+ * Este filtrado lo realizamos en el post y put de clientes, alquiler y peliculas
+ */
 
 //DELETE de Clientes
 module.exports.deleteClientes = function(req, res){ 
@@ -39,10 +48,14 @@ module.exports.deleteClientes = function(req, res){
 
 module.exports.putClientes = function(req, res){ 
   var db=req.db;
-  db.query('update Clientes set ? where dni = ?',[req.body,req.params.dni], function(err, datos, fields) {
+  if(req.body.dni && req.body.nombre && req.body.apellidos){
+      db.query('update Clientes set ? where dni = ?',[req.body,req.params.dni], function(err, datos, fields) {
   if (err) throw err;
-     res.status(201).json(datos)
+    res.status(201).json(datos)
   });
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
 };  
   
 

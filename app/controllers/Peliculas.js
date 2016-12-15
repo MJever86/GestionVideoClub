@@ -19,10 +19,14 @@ module.exports.getPeliculasTitulo = function(req, res){
 //Post de pelicula
 module.exports.postPeliculas = function(req, res){ 
   var db=req.db;
-  db.query('insert into Peliculas set ?',[req.body], function(err, datos, fields) {
+  if(req.body.titulo && req.body.director && req.body.año){
+    db.query('insert into Peliculas set ?',[req.body], function(err, datos, fields) {
   if (err) throw err; //poner en todos
      res.status(201).json(datos)
   });
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
 };  
 
 //Delete peliculas
@@ -39,8 +43,12 @@ module.exports.deletePeliculas = function(req, res){
 
 module.exports.putPeliculas = function(req, res){ 
   var db=req.db;
-  db.query('update Peliculas set ? where titulo = ?',[req.body,req.params.titulo], function(err, datos, fields) {
+  if(req.body.titulo && req.body.director && req.body.año){
+    db.query('update Peliculas set ? where titulo = ?',[req.body,req.params.titulo], function(err, datos, fields) {
   if (err) throw err;
      res.status(201).json(datos)
   });
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
 }; 

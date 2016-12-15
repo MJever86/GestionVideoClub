@@ -20,10 +20,14 @@ module.exports.getAlquilerDni = function(req, res){
 
 module.exports.postAlquiler = function(req, res){ 
   var db=req.db;
-  db.query('insert into Alquiler set ?',[req.body], function(err, datos, fields) {
+  if(req.body.titulo_pelicula && req.body.dni_cliente && req.body.fecha_entrega && req.body.fecha_alquiler){
+    db.query('insert into Alquiler set ?',[req.body], function(err, datos, fields) {
   if (err) throw err;
      res.status(201).json(datos)
   });
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
 };  
 
 //Delete Alquiler
@@ -40,12 +44,16 @@ module.exports.deleteAlquiler = function(req, res){
 
 module.exports.putAlquiler = function(req, res){ 
   var db=req.db;
-  db.query('update Alquiler set ? where dni_cliente = ? and titulo_pelicula = ? and fecha_alquiler like ?"%" and fecha_entrega like ?"%"',[req.body,req.params.dni_cliente,req.params.titulo_pelicula,req.params.fecha_alquiler,req.params.fecha_entrega], function(err, datos, fields) {
+  if(req.body.titulo_pelicula && req.body.dni_cliente && req.body.fecha_entrega && req.body.fecha_alquiler){
+    db.query('update Alquiler set ? where dni_cliente = ? and titulo_pelicula = ? and fecha_alquiler like ?"%" and fecha_entrega like ?"%"',[req.body,req.params.dni_cliente,req.params.titulo_pelicula,req.params.fecha_alquiler,req.params.fecha_entrega], function(err, datos, fields) {
   if (err) {res.json({"err":"No ha sido posible realizar el alquiler de la pelicula"})
     }else{
      res.status(201).json(datos)
     }
   });
+  }else{
+      res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
+  }
 };
 
 //Get Numero de alquileres
