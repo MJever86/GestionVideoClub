@@ -1,31 +1,30 @@
+var cliente=require('../models/cliente');
+
 
 //GET todos los clientes
 module.exports.getClientes = function(req, res){ 
     var db=req.db;
-    db.query('SELECT * from Clientes', function(err, datos, fields) {
-        if (err) throw err;
-            res.json(datos)
+    cliente.getClientes(function(datos){
+        res.json(datos)
     });
 };  
 
 //GET de un cliente
 module.exports.getClientesDni = function(req, res){ 
-    var db=req.db;
-    db.query('SELECT * from Clientes where dni=?',[req.params.dni], function(err, datos, fields) {
-        if (err) throw err;
-            res.json(datos)
+    var dni=req.params.dni;
+    cliente.getClientesDni(dni,function(datos){
+        res.json(datos);
     });
 };  
 
 //POST de Clientes
 module.exports.postClientes = function(req, res){ 
-    var db=req.db;
+    var body=req.body;
     if(req.body.dni && req.body.nombre && req.body.apellidos){
-        db.query('insert into Clientes set ?',[req.body], function(err, datos, fields) {
-            if (err) res.status(500).json({"messagge":"se ha producido un error al insertar el cliente en la base de datos"})
-            else
-                res.status(201).json({"messagge":"el cliente se ha insertado correctamente"})
-        });
+    cliente.postClientes(body,function(datos){
+        var codigo=datos.code;
+        res.status(codigo).json({"messagge":datos.messagge});
+    });
     }else{
         res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
     }
@@ -42,14 +41,13 @@ module.exports.postClientes = function(req, res){
 
 //DELETE de Clientes
 module.exports.deleteClientes = function(req, res){ 
-    var db=req.db;
-    db.query('delete from Clientes where dni=?',[req.params.dni], function(err, datos, fields) {
-        if (err) throw err;
-        if(datos.affectedRows>0)
-            res.json({"messagge":"el cliente se ha eliminado correctamente"})
+    var dni=req.params.dni;
+   cliente.deleteClientes(dni,function(datos){
+       if(datos.affectedRows>0)
+            res.json({"messagge":"el cliente se ha eliminado correctamente"});
         else
-            res.json({"messagge":"el cliente no existe en la base de datos"})
-    });
+            res.json({"messagge":"el cliente no existe en la base de datos"});
+   })
 };  
 /**en el delete hemos modificado para que cuando obtenemos los datos del json, comprobaremos si las 
  * filas modificadas, si son mas de una es que la hemos borrado correctamente y son 0 es que la pelicula no existia en la base de datos.*/
@@ -57,13 +55,14 @@ module.exports.deleteClientes = function(req, res){
 //UPDATE de Clientes
 
 module.exports.putClientes = function(req, res){ 
-    var db=req.db;
+    var body=req.body;
+    var dni=req.params.dni;
     if(req.body.dni && req.body.nombre && req.body.apellidos){
-        db.query('update Clientes set ? where dni = ?',[req.body,req.params.dni], function(err, datos, fields) {
-            if (err) res.status(500).json({"err":"no ha sido posible actualizar el cliente"})
-            else
-                res.json({"mesagge":"el cliente se ha actualizado correctamente"})
+        cliente.putClientes(dni,body,function(datos){
+            var codigo=datos.code;
+            res.status(codigo).json({"messagge":datos.messagge})
         });
+
     }else{
         res.status(409).json({"messagge":"Los datos introducidos no son correctos"})
     }
